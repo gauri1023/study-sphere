@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudySphere — Login</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="auth-body">
+
+  <div class="auth-container">
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <span>📚</span>
+        <h1>StudySphere</h1>
+        <p>Your Personal Study Café</p>
+      </div>
+
+      <!-- Tab Switch -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab">Login</button>
+        <button class="auth-tab" id="signupTab">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-form" id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email address"/>
+        <input type="password" id="loginPassword" placeholder="Password"/>
+        <button class="btn-primary full-width" id="loginBtn">☕ Login</button>
+        <p class="auth-link" id="forgotLink">Forgot password?</p>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="auth-form hidden" id="signupForm">
+        <input type="text" id="signupName" placeholder="Your name"/>
+        <input type="email" id="signupEmail" placeholder="Email address"/>
+        <input type="password" id="signupPassword" placeholder="Password (min 6 chars)"/>
+        <button class="btn-primary full-width" id="signupBtn">🚀 Create Account</button>
+      </div>
+
+      <div id="authError" class="auth-error hidden"></div>
+      <div id="authLoading" class="auth-loading hidden">
+        <div class="spinner"></div> Please wait...
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
+      updateProfile,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDw43jna--00H0fiRXz8RoEFIac5W26D84",
+      authDomain: "study-sphere-c4b30.firebaseapp.com",
+      projectId: "study-sphere-c4b30",
+      storageBucket: "study-sphere-c4b30.firebasestorage.app",
+      messagingSenderId: "355902541755",
+      appId: "1:355902541755:web:6bd5a11fcdb249825b3e9e",
+      measurementId: "G-FW93YQEGEN"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.href = "index.html";
+    });
+
+    const loginTab   = document.getElementById('loginTab');
+    const signupTab  = document.getElementById('signupTab');
+    const loginForm  = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const authError  = document.getElementById('authError');
+    const authLoad   = document.getElementById('authLoading');
+
+    function showError(msg) {
+      authError.textContent = msg;
+      authError.classList.remove('hidden');
+      authLoad.classList.add('hidden');
+    }
+
+    function showLoading() {
+      authError.classList.add('hidden');
+      authLoad.classList.remove('hidden');
+    }
+
+    function hideLoading() {
+      authLoad.classList.add('hidden');
+    }
+
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      signupTab.classList.remove('active');
+      loginForm.classList.remove('hidden');
+      signupForm.classList.add('hidden');
+      authError.classList.add('hidden');
+    });
+
+    signupTab.addEventListener('click', () => {
+      signupTab.classList.add('active');
+      loginTab.classList.remove('active');
+      signupForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      authError.classList.add('hidden');
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) { showError('Please fill in all fields.'); return; }
+      showLoading();
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "index.html";
+      } catch (e) {
+        showError(friendlyError(e.code));
+      }
+    });
+
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+      const name     = document.getElementById('signupName').value.trim();
+      const email    = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      if (!name || !email || !password) { showError('Please fill in all fields.'); return; }
+      if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+      showLoading();
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+        window.location.href = "index.html";
+      } catch (e) {
+        showError(friendlyError(e.code));
+      }
+    });
+
+    document.getElementById('forgotLink').addEventListener('click', async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      if (!email) { showError('Enter your email first.'); return; }
+      showLoading();
+      try {
+        await sendPasswordResetEmail(auth, email);
+        hideLoading();
+        authError.style.color = 'var(--success)';
+        showError('✅ Reset email sent! Check your inbox.');
+      } catch (e) {
+        showError(friendlyError(e.code));
+      }
+    });
+
+    function friendlyError(code) {
+      const map = {
+        'auth/user-not-found':      '❌ No account found with this email.',
+        'auth/wrong-password':      '❌ Incorrect password.',
+        'auth/email-already-in-use':'❌ Email already registered. Try logging in.',
+        'auth/invalid-email':       '❌ Invalid email address.',
+        'auth/weak-password':       '❌ Password too weak.',
+        'auth/too-many-requests':   '❌ Too many attempts. Try again later.',
+        'auth/invalid-credential':  '❌ Invalid email or password.',
+      };
+      return map[code] || '❌ Something went wrong. Try again.';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        if (!loginForm.classList.contains('hidden')) document.getElementById('loginBtn').click();
+        else document.getElementById('signupBtn').click();
+      }
+    });
+  </script>
+</body>
+</html>

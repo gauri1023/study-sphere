@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudySphere</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- AUTH LOADING SCREEN -->
+  <div id="authGate" class="auth-gate">
+    <div class="auth-gate-inner">
+      <span style="font-size:3rem">📚</span>
+      <p>Loading StudySphere...</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR NAV -->
+  <nav class="sidebar" id="mainApp" style="display:none">
+    <div class="sidebar-logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">StudySphere</span>
+    </div>
+    <ul class="nav-links">
+      <li class="nav-item active" data-tab="dashboard">🏠 <span>Dashboard</span></li>
+      <li class="nav-item" data-tab="subjects">📖 <span>Subjects</span></li>
+      <li class="nav-item" data-tab="exams">📅 <span>Exams</span></li>
+      <li class="nav-item" data-tab="habits">✅ <span>Habits</span></li>
+      <li class="nav-item" data-tab="pomodoro">⏳ <span>Pomodoro</span></li>
+      <li class="nav-item" data-tab="analytics">📊 <span>Analytics</span></li>
+      <li class="nav-item" data-tab="ai">🤖 <span>AI Scheduler</span></li>
+    </ul>
+    <div class="sidebar-bottom">
+      <div class="user-info" id="userInfo"></div>
+      <button id="themeBtn" class="theme-btn">🌙 Dark Mode</button>
+      <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="mainContent" style="display:none">
+
+    <!-- DASHBOARD -->
+    <section class="tab-section active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 id="greetingText">Good morning ☕</h1>
+          <p class="subtitle" id="greetingName">Welcome back!</p>
+        </div>
+        <div class="streak-badge">🔥 <span id="streakCount">0</span> Day Streak</div>
+      </div>
+      <div class="xp-bar-wrap card">
+        <div class="xp-top">
+          <span>⭐ Level <span id="xpLevel">1</span> Scholar</span>
+          <span><span id="xpCurrent">0</span> / <span id="xpNext">100</span> XP</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill xp-fill" id="xpFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card card"><div class="stat-icon">📖</div><div class="stat-info"><div class="stat-value" id="statSubjects">0</div><div class="stat-label">Subjects</div></div></div>
+        <div class="stat-card card"><div class="stat-icon">📅</div><div class="stat-info"><div class="stat-value" id="statExams">0</div><div class="stat-label">Exams Ahead</div></div></div>
+        <div class="stat-card card"><div class="stat-icon">✅</div><div class="stat-info"><div class="stat-value" id="statHabits">0</div><div class="stat-label">Habits Today</div></div></div>
+        <div class="stat-card card"><div class="stat-icon">🏆</div><div class="stat-info"><div class="stat-value" id="statAchievements">0</div><div class="stat-label">Achievements</div></div></div>
+      </div>
+      <div class="card"><h2 class="section-title">🏆 Achievements</h2><div class="achievements-grid" id="achievementsGrid"></div></div>
+      <div class="card"><h2 class="section-title">📅 Next Exams</h2><div id="dashExams"></div></div>
+    </section>
+
+    <!-- SUBJECTS -->
+    <section class="tab-section" id="tab-subjects">
+      <div class="page-header"><h1>📖 Subjects</h1><p class="subtitle">Track your chapter progress</p></div>
+      <div class="card form-card">
+        <h2 class="section-title">Add Subject</h2>
+        <div class="form-row">
+          <input type="text" id="subjectName" placeholder="Subject name"/>
+          <input type="number" id="completedChapters" placeholder="Done" min="0"/>
+          <input type="number" id="totalChapters" placeholder="Total" min="1"/>
+          <button class="btn-primary" id="addSubjectBtn">+ Add</button>
+        </div>
+      </div>
+      <div id="subjectsContainer"></div>
+    </section>
+
+    <!-- EXAMS -->
+    <section class="tab-section" id="tab-exams">
+      <div class="page-header"><h1>📅 Exams</h1><p class="subtitle">Countdown to your exams</p></div>
+      <div class="card form-card">
+        <h2 class="section-title">Add Exam</h2>
+        <div class="form-row">
+          <input type="text" id="examName" placeholder="Exam name"/>
+          <input type="date" id="examDate"/>
+          <button class="btn-primary" id="addExamBtn">+ Add</button>
+        </div>
+      </div>
+      <div id="examsContainer"></div>
+    </section>
+
+    <!-- HABITS -->
+    <section class="tab-section" id="tab-habits">
+      <div class="page-header"><h1>✅ Habit Tracker</h1><p class="subtitle">Build consistent daily habits</p></div>
+      <div class="card form-card">
+        <h2 class="section-title">Add Habit</h2>
+        <div class="form-row">
+          <input type="text" id="habitName" placeholder="e.g. Read 30 mins..."/>
+          <select id="habitIcon">
+            <option value="📚">📚 Study</option>
+            <option value="🏃">🏃 Exercise</option>
+            <option value="💧">💧 Hydrate</option>
+            <option value="🧘">🧘 Meditate</option>
+            <option value="✍️">✍️ Write</option>
+            <option value="🎯">🎯 Focus</option>
+          </select>
+          <button class="btn-primary" id="addHabitBtn">+ Add</button>
+        </div>
+      </div>
+      <div class="card"><h2 class="section-title">Today's Habits — <span id="habitDate"></span></h2><div id="habitsContainer"></div></div>
+    </section>
+
+    <!-- POMODORO -->
+    <section class="tab-section" id="tab-pomodoro">
+      <div class="page-header"><h1>⏳ Pomodoro Timer</h1><p class="subtitle">Focus in sprints, rest well</p></div>
+      <div class="card pomodoro-card">
+        <div class="pomodoro-modes">
+          <button class="pomo-mode-btn active" data-mode="25">🍅 Focus (25m)</button>
+          <button class="pomo-mode-btn" data-mode="5">☕ Short Break (5m)</button>
+          <button class="pomo-mode-btn" data-mode="15">🛋️ Long Break (15m)</button>
+        </div>
+        <div class="pomodoro-ring">
+          <svg class="ring-svg" viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="90"/>
+            <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="90" stroke-dasharray="565.5" stroke-dashoffset="0"/>
+          </svg>
+          <div class="timer-display">
+            <div class="timer-time" id="timerDisplay">25:00</div>
+            <div class="timer-label" id="timerLabel">Focus Time</div>
+          </div>
+        </div>
+        <div class="pomodoro-controls">
+          <button class="btn-primary" id="startTimer">▶ Start</button>
+          <button class="btn-secondary" id="pauseTimer">⏸ Pause</button>
+          <button class="btn-ghost" id="resetTimer">↺ Reset</button>
+        </div>
+        <div class="pomodoro-stats"><span>🍅 Sessions today: <strong id="pomodoroCount">0</strong></span></div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="tab-section" id="tab-analytics">
+      <div class="page-header"><h1>📊 Analytics</h1><p class="subtitle">See your study patterns</p></div>
+      <div class="analytics-grid">
+        <div class="card"><h2 class="section-title">Subject Progress</h2><canvas id="subjectChart" height="250"></canvas></div>
+        <div class="card"><h2 class="section-title">Weekly Habit Completion</h2><canvas id="habitChart" height="250"></canvas></div>
+        <div class="card full-width"><h2 class="section-title">Exam Countdown (Days Left)</h2><canvas id="examChart" height="200"></canvas></div>
+      </div>
+    </section>
+
+    <!-- AI SCHEDULER -->
+    <section class="tab-section" id="tab-ai">
+      <div class="page-header"><h1>🤖 AI Study Scheduler</h1><p class="subtitle">Get a personalised study plan</p></div>
+      <div class="card form-card">
+        <h2 class="section-title">Tell me about your schedule</h2>
+        <div class="ai-form">
+          <textarea id="aiGoal" placeholder="e.g. I have 3 exams in 2 weeks. I can study 3 hours a day. Help me plan!" rows="4"></textarea>
+          <button class="btn-primary" id="generateSchedule">🤖 Generate My Plan</button>
+        </div>
+      </div>
+      <div class="card" id="aiOutputCard" style="display:none">
+        <h2 class="section-title">Your Study Plan</h2>
+        <div id="aiOutput" class="ai-output"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

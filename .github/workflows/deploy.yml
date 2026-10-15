@@ -1,0 +1,46 @@
+
+name: StudySphere CI/CD
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Get StudySphere source code
+        uses: actions/checkout@v6
+
+      - name: Verify website files
+        run: |
+          test -f index.html
+          test -f login.html
+          test -f script.js
+          test -f style.css
+          echo "StudySphere files verified successfully!"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website files
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+      - name: Deploy StudySphere
+        id: deployment
+        uses: actions/deploy-pages@v4
